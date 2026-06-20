@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Wheel of Fortune - English 3rd Grade</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at 10% 30%, #2b7a4b, #0f3b2c);
+            font-family: 'Comic Neue', 'Comic Sans MS', 'Poppins', 'Segoe UI', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Pixar style: smooth, playful, bright */
+        .game-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            background: #ffefc0;
+            border-radius: 80px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3), inset 0 1px 5px rgba(255, 250, 210, 0.8);
+            overflow: hidden;
+            padding: 20px 25px 35px;
+            transition: all 0.2s;
+        }
+
+        /* screens */
+        .screen {
+            transition: 0.2s ease;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* start screen */
+        .start-screen {
+            text-align: center;
+            padding: 25px 15px 45px;
+        }
+        .game-logo {
+            font-size: 3.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f9a826, #f7d44a);
+            display: inline-block;
+            padding: 0.2em 0.8em;
+            border-radius: 100px;
+            color: #2c3e2b;
+            text-shadow: 4px 4px 0 #b45f1b;
+            box-shadow: 0 12px 0 #b45f1b;
+            margin-bottom: 30px;
+            transform: rotate(-1deg);
+        }
+        .start-btn {
+            background: #f4c542;
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 12px 40px;
+            font-family: inherit;
+            border: none;
+            border-radius: 60px;
+            color: #2c3a1f;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #aa6f2e;
+            transition: 0.05s linear;
+            margin-top: 25px;
+        }
+        .start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #aa6f2e;
+        }
+
+        /* game screen top bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #5e3c1c;
+            border-radius: 50px;
+            padding: 8px 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .score-box {
+            background: #ffdd99;
+            border-radius: 40px;
+            padding: 6px 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #4b2f10;
+        }
+        .progress-area {
+            flex: 2;
+            min-width: 150px;
+        }
+        .progress-label {
+            font-size: 0.9rem;
+            color: #ffefb9;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .progress-bar-bg {
+            background-color: #f5d742;
+            border-radius: 40px;
+            height: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #2bc16e;
+            border-radius: 40px;
+            transition: width 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 0 6px #a1ffc1;
+        }
+
+        /* wheel + question panel */
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0;
+        }
+        canvas {
+            max-width: 100%;
+            width: 320px;
+            height: 320px;
+            background: #fdebb3;
+            border-radius: 50%;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.3), inset 0 0 0 5px #ffcf8a;
+            cursor: pointer;
+        }
+        .spin-btn {
+            margin-top: 20px;
+            background: #ff9944;
+            border: none;
+            font-size: 1.9rem;
+            font-weight: bold;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-family: inherit;
+            color: #2d2818;
+            box-shadow: 0 7px 0 #9b521a;
+            transition: 0.05s linear;
+            cursor: pointer;
+        }
+        .spin-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 3px 0 #9b521a;
+        }
+        .spin-btn.disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        /* question card */
+        .question-card {
+            background: #fcf3da;
+            border-radius: 70px;
+            padding: 12px 25px 25px;
+            margin-top: 20px;
+            text-align: center;
+            border: 3px solid #ffc476;
+            transition: all 0.1s;
+        }
+        .question-text {
+            font-size: 1.7rem;
+            font-weight: bold;
+            color: #2e4a2b;
+        }
+        .answer-input {
+            width: 85%;
+            padding: 12px;
+            font-size: 1.3rem;
+            border-radius: 60px;
+            border: 3px solid #f1b45a;
+            font-family: inherit;
+            text-align: center;
+            margin: 12px 0;
+            background: white;
+        }
+        .check-btn {
+            background: #6c9e3b;
+            border: none;
+            font-size: 1.3rem;
+            padding: 10px 25px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #3e611a;
+        }
+        .feedback {
+            margin-top: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-height: 60px;
+        }
+        .green-border {
+            border: 4px solid #2dc96e !important;
+            box-shadow: 0 0 0 2px #baffcf;
+        }
+        .red-border {
+            border: 4px solid #e55c3c !important;
+            box-shadow: 0 0 0 2px #ffbcac;
+        }
+
+        /* final screen */
+        .final-screen {
+            text-align: center;
+            padding: 25px;
+        }
+        .final-stars {
+            font-size: 3.5rem;
+            letter-spacing: 12px;
+            margin: 20px 0;
+        }
+        .final-message {
+            background: #ffe3a3;
+            border-radius: 50px;
+            padding: 12px;
+            font-size: 1.2rem;
+            margin: 20px auto;
+            max-width: 320px;
+        }
+        .again-btn {
+            background: #f4a261;
+            font-size: 1.5rem;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 6px 0 #b45f2b;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 550px) {
+            .game-wrapper {
+                padding: 16px;
+            }
+            .question-text {
+                font-size: 1.2rem;
+            }
+            .answer-input {
+                font-size: 1rem;
+            }
+            .score-box {
+                font-size: 1.1rem;
+            }
+            canvas {
+                width: 260px;
+                height: 260px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="game-wrapper" id="gameWrapper">
+    <!-- START SCREEN -->
+    <div id="startScreen" class="screen start-screen">
+        <div class="game-logo">🎡 WHEEL of FORTUNE 🎡</div>
+        <div style="font-size:1.6rem; margin: 20px 0; color:#3f5120;">English Adventure · 3rd Grade</div>
+        <div style="font-size:1.1rem; background:#ffdd99; border-radius:40px; padding:8px; max-width:260px; margin:0 auto;">✨ Spin & Learn! ✨</div>
+        <button class="start-btn" id="startGameBtn">▶ START GAME ◀</button>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="gameScreen" class="screen hidden">
+        <div class="top-bar">
+            <div class="score-box">🏆 SCORE: <span id="scoreValue">0</span></div>
+            <div class="progress-area">
+                <div class="progress-label"><span>⭐ Correct answers</span><span id="correctCounter">0</span> / 8</div>
+                <div class="progress-bar-bg"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+        </div>
+        <div class="wheel-container">
+            <canvas id="wheelCanvas" width="500" height="500" style="width:100%; max-width:350px; height:auto; aspect-ratio:1/1"></canvas>
+            <button id="spinButton" class="spin-btn">🌀 SPIN THE WHEEL 🌀</button>
+        </div>
+        <div id="questionArea" class="question-card">
+            <div class="question-text" id="questionText">✨ Press SPIN to start! ✨</div>
+            <input type="text" id="answerInput" class="answer-input" placeholder="Your answer..." autocomplete="off" disabled>
+            <button id="checkAnswerBtn" class="check-btn" disabled>✔ CHECK ✔</button>
+            <div id="feedbackMsg" class="feedback"></div>
+        </div>
+    </div>
+
+    <!-- FINAL SCREEN -->
+    <div id="finalScreen" class="screen hidden final-screen">
+        <div class="game-logo" style="font-size:2rem;">🏁 GAME OVER 🏁</div>
+        <div id="finalStats" style="font-size:1.4rem; margin-top: 15px;"></div>
+        <div id="finalStars" class="final-stars">⭐️⭐️⭐️</div>
+        <div id="finalFeedback" class="final-message"></div>
+        <button id="playAgainFinal" class="again-btn">🔄 PLAY AGAIN</button>
+    </div>
+</div>
+
+<script>
+    // ---------- ENGLISH GAME DATA (8 SECTORS) ----------
+    const SECTORS = [
+        { name: "🍎 Fruit", question: "What is 'apple' in Russian?", answer: "яблоко" },
+        { name: "🎨 Color", question: "What is 'blue' in Russian?", answer: "синий" },
+        { name: "🔢 Numbers", question: "One + two = ? (write in English)", answer: "three" },
+        { name: "🐱 Animals", question: "Translate 'cat' into Russian.", answer: "кошка" },
+        { name: "🐶 Pets", question: "Translate 'dog' into Russian.", answer: "собака" },
+        { name: "👋 Greetings", question: "How do you say 'привет' in English?", answer: "hello" },
+        { name: "☀️ Weather", question: "What is 'sun' in Russian?", answer: "солнце" },
+        { name: "👩 Family", question: "Translate 'mother' into Russian.", answer: "мама" }
+    ];
+    const TOTAL_SECTORS = 8;
+    let usedSectors = new Array(TOTAL_SECTORS).fill(false);
+    let sectorPoints = new Array(TOTAL_SECTORS).fill(0); // 1 for correct, 0 otherwise (not needed)
+    let correctCount = 0;    // number of correct answers
+    let totalScore = 0;      // 1 point for each correct
+    let spinLock = false;     // block spin during animation / while answering
+    let awaitingAnswer = false;
+    let currentSectorIndex = -1;   // sector that was last spun
+    let wheelRotation = 0;          // current rotation angle in degrees
+    let animFrame = null;
+    let canvas = document.getElementById('wheelCanvas');
+    let ctx = canvas.getContext('2d');
+    let spinBtn = document.getElementById('spinButton');
+    let checkBtn = document.getElementById('checkAnswerBtn');
+    let answerInput = document.getElementById('answerInput');
+    let questionTextDiv = document.getElementById('questionText');
+    let feedbackDiv = document.getElementById('feedbackMsg');
+    let progressFill = document.getElementById('progressFill');
+    let scoreSpan = document.getElementById('scoreValue');
+    let correctSpan = document.getElementById('correctCounter');
+
+    // Colors for wheel (Pixar style)
+    const COLOR_PALETTE = ["#FFAD84", "#F9D56E", "#A7E0E0", "#FFB7B2", "#C0E0C9", "#FFD966", "#E9B5A0", "#B5E3CF"];
+
+    // Helper: draw wheel with current rotation
+    function drawWheel() {
+        const size = canvas.width;
+        const centerX = size/2, centerY = size/2;
+        const radius = size/2 - 8;
+        ctx.clearRect(0, 0, size, size);
+        const angleStep = (Math.PI * 2) / TOTAL_SECTORS;
+        for (let i = 0; i < TOTAL_SECTORS; i++) {
+            const startAngle = i * angleStep + (wheelRotation * Math.PI/180);
+            const endAngle = startAngle + angleStep;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.fillStyle = COLOR_PALETTE[i % COLOR_PALETTE.length];
+            ctx.fill();
+            ctx.save();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = "#fff0b5";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            // draw used marker (if sector used)
+            if (usedSectors[i]) {
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius - 10, startAngle, endAngle);
+                ctx.fillStyle = "rgba(80, 60, 40, 0.55)";
+                ctx.fill();
+                ctx.fillStyle = "#ffffffcc";
+                ctx.font = `bold ${Math.floor(radius/6)}px "Comic Sans MS"`;
+                ctx.shadowBlur = 0;
+                const textAngle = startAngle + angleStep/2;
+                const textX = centerX + (radius * 0.65) * Math.cos(textAngle);
+                const textY = centerY + (radius * 0.65) * Math.sin(textAngle);
+                ctx.fillStyle = "#3e2a1f";
+                ctx.fillText("✓", textX-8, textY+8);
+                ctx.fillStyle = "#f0f0e0";
+                ctx.fillText("✓", textX-10, textY+6);
+            } else {
+                // draw small label
+                ctx.fillStyle = "#1f3b1a";
+                ctx.font = `bold ${Math.floor(radius/7)}px "Comic Sans MS"`;
+                const textAngle = startAngle + angleStep/2;
+                const textX = centerX + (radius * 0.7) * Math.cos(textAngle);
+                const textY = centerY + (radius * 0.7) * Math.sin(textAngle);
+                let short = SECTORS[i].name.substring(0,3);
+                ctx.fillStyle = "#2f2b1f";
+                ctx.fillText(short, textX-12, textY+6);
+            }
+            ctx.restore();
+        }
+        // center circle + pointer mark
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 25, 0, 2*Math.PI);
+        ctx.fillStyle = "#fad275";
+        ctx.fill();
+        ctx.fillStyle = "#b9632c";
+        ctx.font = "bold 28px sans-serif";
+        ctx.fillText("🎯", centerX-16, centerY+12);
+        // draw pointer triangle (top)
+        ctx.beginPath();
+        ctx.moveTo(centerX-15, 10);
+        ctx.lineTo(centerX+15, 10);
+        ctx.lineTo(centerX, 35);
+        ctx.fillStyle = "#ff5964";
+        ctx.fill();
+        ctx.fillStyle = "#a1202a";
+        ctx.font = "bold 14px monospace";
+        ctx.fillText("▲", centerX-7, 30);
+    }
+
+    // get sector index under pointer (0-7) based on current rotation
+    function getSectorIndex(rotationDeg) {
+        // pointer is at top: angle = -90° (270°) in standard math
+        // we compute which segment includes that direction
+        let angleRad = ((-rotationDeg - 90) * Math.PI/180) % (Math.PI*2);
+        if (angleRad < 0) angleRad += Math.PI*2;
+        const step = (Math.PI*2)/TOTAL_SECTORS;
+        let idx = Math.floor(angleRad / step);
+        return idx % TOTAL_SECTORS;
+    }
+
+    // spin wheel to target sector (random unused)
+    function startSpin() {
+        if (spinLock || awaitingAnswer) {
+            feedbackDiv.innerHTML = "⚠️ Wait, finish current task or spin ends! ⚠️";
+            return;
+        }
+        // check for any available sector
+        let available = usedSectors.some(u => !u);
+        if (!available) {
+            endGame();
+            return;
+        }
+        // pick random unused sector
+        let freeIndices = [];
+        for (let i=0; i<TOTAL_SECTORS; i++) if (!usedSectors[i]) freeIndices.push(i);
+        let targetIdx = freeIndices[Math.floor(Math.random() * freeIndices.length)];
+        // current visible sector?
+        let currentIdx = getSectorIndex(wheelRotation);
+        // compute target rotation so that targetIdx aligns with pointer (top)
+        // We want the center of the target sector to be under pointer
+        // Angle of sector center = targetIdx * 45 + 22.5 deg
+        // Pointer direction = -90° (or 270). For alignment: (targetCenterDeg - pointerDeg) = rotation
+        let targetCenter = targetIdx * 45 + 22.5;  // degrees
+        let pointerAngle = -90;
+        let delta = (targetCenter - pointerAngle) % 360;
+        let targetRotation = (delta) % 360;
+        // we want smooth spins: add 5 full rotations (1800°)
+        let currentRot = wheelRotation % 360;
+        let spinDelta = (targetRotation - currentRot + 360) % 360;
+        let finalRotation = currentRot + spinDelta + 720; // add 2 extra full spins
+        animateWheel(finalRotation, targetIdx);
+    }
+
+    function animateWheel(targetRotationDeg, targetSectorIdx) {
+        if (animFrame) cancelAnimationFrame(animFrame);
+        spinLock = true;
+        const startRot = wheelRotation;
+        const duration = 1800; // ms
+        const startTime = performance.now();
+        function step(now) {
+            const elapsed = now - startTime;
+            let t = Math.min(1, elapsed / duration);
+            // easing cubic out
+            const ease = 1 - Math.pow(1-t, 3);
+            const newRot = startRot + (targetRotationDeg - startRot) * ease;
+            wheelRotation = newRot;
+            drawWheel();
+            if (t < 1) {
+                animFrame = requestAnimationFrame(step);
+            } else {
+                wheelRotation = targetRotationDeg % 360;
+                drawWheel();
+                spinLock = false;
+                // verify sector is the intended (maybe due to rounding)
+                let finalIdx = getSectorIndex(wheelRotation);
+                if (usedSectors[finalIdx]) {
+                    // extremely rare, but if sector became used during animation? not possible. anyway re-spin fallback?
+                    feedbackDiv.innerHTML = "⚠️ Oops, sector already used. Spin again!";
+                    spinLock = false;
+                    return;
+                }
+                // show question for this sector
+                currentSectorIndex = finalIdx;
+                showQuestionForSector(finalIdx);
+                animFrame = null;
+            }
+        }
+        animFrame = requestAnimationFrame(step);
+    }
+
+    function showQuestionForSector(sectorIdx) {
+        if (usedSectors[sectorIdx]) return;
+        awaitingAnswer = true;
+        const data = SECTORS[sectorIdx];
+        questionTextDiv.innerText = data.question;
+        answerInput.disabled = false;
+        checkBtn.disabled = false;
+        answerInput.value = "";
+        feedbackDiv.innerHTML = "🤔 Type your answer and press CHECK!";
+        answerInput.focus();
+        // remove any borders
+        answerInput.classList.remove("green-border", "red-border");
+        // disable spin while answering
+        spinBtn.disabled = true;
+        spinBtn.classList.add("disabled");
+    }
+
+    function checkAnswer() {
+        if (!awaitingAnswer || currentSectorIndex === -1) return;
+        const userAns = answerInput.value.trim();
+        if (userAns === "") {
+            feedbackDiv.innerHTML = "📝 Please enter an answer!";
+            return;
+        }
+        const correctAns = SECTORS[currentSectorIndex].answer;
+        const isCorrect = (userAns.toLowerCase() === correctAns.toLowerCase());
+        // visual feedback
+        if (isCorrect) {
+            answerInput.classList.add("green-border");
+            answerInput.classList.remove("red-border");
+            feedbackDiv.innerHTML = "✅ Отлично! +1 point! ✅";
+            // award points
+            totalScore += 1;
+            correctCount++;
+            updateProgressAndUI();
+            // mark sector as used
+            usedSectors[currentSectorIndex] = true;
+        } else {
+            answerInput.classList.add("red-border");
+            answerInput.classList.remove("green-border");
+            feedbackDiv.innerHTML = `❌ Почти! Попробуй ещё раз. Правильный ответ: "${correctAns}". ❌`;
+            // mark sector used (but no points)
+            usedSectors[currentSectorIndex] = true;
+        }
+        // update score display
+        scoreSpan.innerText = totalScore;
+        correctSpan.innerText = correctCount;
+        // redraw wheel to show used sectors with marker
+        drawWheel();
+
+        // Clear answer state
+        awaitingAnswer = false;
+        currentSectorIndex = -1;
+        answerInput.disabled = true;
+        checkBtn.disabled = true;
+        spinBtn.disabled = false;
+        spinBtn.classList.remove("disabled");
+
+        // check if game completed (all sectors used)
+        let allUsed = usedSectors.every(v => v === true);
+        if (allUsed) {
+            endGame();
+            return;
+        }
+        // reset question placeholder for next spin
+        if (!allUsed) {
+            questionTextDiv.innerText = "🎡 Spin again to continue! 🎡";
+            feedbackDiv.innerHTML += "  Click SPIN for next round!";
+        }
+        // remove border effects after 1.5 sec
+        setTimeout(() => {
+            if (answerInput) {
+                answerInput.classList.remove("green-border", "red-border");
+            }
+        }, 1200);
+    }
+
+    function updateProgressAndUI() {
+        // progress fill percent based on correct answers / total sectors
+        let percent = (correctCount / TOTAL_SECTORS) * 100;
+        progressFill.style.width = percent + "%";
+        scoreSpan.innerText = totalScore;
+        correctSpan.innerText = correctCount;
+        if (correctCount === TOTAL_SECTORS) {
+            // All correct before using all sectors? Actually all sectors used check triggers end, but we can show celebration
+            feedbackDiv.innerHTML = "🎉 WOW! PERFECT SCORE! 🎉";
+            setTimeout(() => endGame(), 600);
+        }
+    }
+
+    function endGame() {
+        if (spinLock) return;
+        // block any further spins
+        spinBtn.disabled = true;
+        spinBtn.classList.add("disabled");
+        let totalPossible = TOTAL_SECTORS;
+        let wrongCount = totalPossible - correctCount;
+        let percentCorrect = (correctCount / totalPossible) * 100;
+        let stars = 0;
+        if (percentCorrect >= 90) stars = 3;
+        else if (percentCorrect >= 65) stars = 2;
+        else if (percentCorrect >= 40) stars = 1;
+        else stars = 0;
+        let starString = "";
+        for (let i=0; i<stars; i++) starString += "⭐️ ";
+        for (let i=stars; i<3; i++) starString += "☆ ";
+        document.getElementById("finalStars").innerHTML = starString;
+        let statsText = `✅ Correct: ${correctCount}  |  ❌ Wrong: ${wrongCount}<br>🏆 Score: ${totalScore} point(s)`;
+        document.getElementById("finalStats").innerHTML = statsText;
+        let gradeMsg = "";
+        if (stars === 3) gradeMsg = "Amazing! You're an English Star! 🌟";
+        else if (stars === 2) gradeMsg = "Good job! A little more practice and you'll be perfect! 📚";
+        else if (stars === 1) gradeMsg = "Nice try! Spin again to learn more! 🌀";
+        else gradeMsg = "Great effort! Play again to collect more stars! 🌈";
+        document.getElementById("finalFeedback").innerHTML = gradeMsg;
+        // hide game screen, show final
+        document.getElementById("gameScreen").classList.add("hidden");
+        document.getElementById("finalScreen").classList.remove("hidden");
+    }
+
+    function resetGame() {
+        usedSectors.fill(false);
+        correctCount = 0;
+        totalScore = 0;
+        wheelRotation = 0;
+        if (animFrame) cancelAnimationFrame(animFrame);
+        spinLock = false;
+        awaitingAnswer = false;
+        currentSectorIndex = -1;
+        scoreSpan.innerText = "0";
+        correctSpan.innerText = "0";
+        progressFill.style.width = "0%";
+        drawWheel();
+        spinBtn.disabled = false;
+        spinBtn.classList.remove("disabled");
+        answerInput.disabled = true;
+        checkBtn.disabled = true;
+        questionTextDiv.innerText = "✨ Press SPIN to start! ✨";
+        feedbackDiv.innerHTML = "";
+        answerInput.value = "";
+        answerInput.classList.remove("green-border", "red-border");
+    }
+
+    function startNewGame() {
+        resetGame();
+        document.getElementById("startScreen").classList.add("hidden");
+        document.getElementById("finalScreen").classList.add("hidden");
+        document.getElementById("gameScreen").classList.remove("hidden");
+    }
+
+    // Event Listeners
+    document.getElementById("startGameBtn").addEventListener("click", () => {
+        startNewGame();
+    });
+    document.getElementById("spinButton").addEventListener("click", () => {
+        if (!spinLock && !awaitingAnswer) {
+            startSpin();
+        } else {
+            feedbackDiv.innerHTML = "⏳ Wait! Answer current question or let wheel stop.";
+        }
+    });
+    document.getElementById("checkAnswerBtn").addEventListener("click", checkAnswer);
+    document.getElementById("playAgainFinal").addEventListener("click", () => {
+        startNewGame();
+    });
+    // also menu from final? already play again does restart. Add return to start?
+    // We'll allow resetting all.
+    // Additional: press Enter on input
+    answerInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && !checkBtn.disabled && awaitingAnswer) {
+            checkAnswer();
+        }
+    });
+
+    // initial draw of wheel when canvas ready
+    function initCanvas() {
+        canvas.width = 500;
+        canvas.height = 500;
+        drawWheel();
+    }
+    initCanvas();
+    window.addEventListener("resize", () => drawWheel());
+    // additional guarantee
+    setInterval(() => { if(canvas) drawWheel(); }, 200);
+</script>
+</body>
+</html>
