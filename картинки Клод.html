@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Флэш-карточки: Природные зоны</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  :root {
+    --game-bg: #f5ede0;
+    --game-card: #fff8f0;
+    --game-primary: #c0654a;
+    --game-accent: #e8a87c;
+    --game-text: #3d2b1f;
+    --game-success: #6a9e5b;
+    --game-error: #c45c5c;
+    --game-muted: #a08070;
+    --game-yarn1: #d4876b;
+    --game-yarn2: #7ba7bc;
+    --game-yarn3: #a8c5a0;
+    --game-yarn4: #e6c97e;
+    --game-yarn5: #b589b0;
+    --game-border: #c4a882;
+    --game-shadow: rgba(100,60,30,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background-color: var(--game-bg);
+    color: var(--game-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ===== KNITTED BACKGROUND ===== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 18px,
+        rgba(180,130,90,0.07) 18px,
+        rgba(180,130,90,0.07) 20px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 18px,
+        rgba(180,130,90,0.07) 18px,
+        rgba(180,130,90,0.07) 20px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== YARN DECORATIONS ===== */
+  .yarn-top {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--game-yarn1) 0px, var(--game-yarn1) 40px,
+      var(--game-yarn4) 40px, var(--game-yarn4) 80px,
+      var(--game-yarn2) 80px, var(--game-yarn2) 120px,
+      var(--game-yarn3) 120px, var(--game-yarn3) 160px,
+      var(--game-yarn5) 160px, var(--game-yarn5) 200px
+    );
+    z-index: 100;
+  }
+  .yarn-top::after {
+    content: '';
+    display: block;
+    height: 8px;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0, transparent 6px,
+      rgba(0,0,0,0.12) 6px, rgba(0,0,0,0.12) 7px
+    );
+    margin-top: 2px;
+  }
+  .yarn-bottom {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 22px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--game-yarn3) 0px, var(--game-yarn3) 40px,
+      var(--game-yarn5) 40px, var(--game-yarn5) 80px,
+      var(--game-yarn1) 80px, var(--game-yarn1) 120px,
+      var(--game-yarn4) 120px, var(--game-yarn4) 160px,
+      var(--game-yarn2) 160px, var(--game-yarn2) 200px
+    );
+    z-index: 100;
+  }
+
+  /* ===== SCREENS ===== */
+  .screen {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px 40px;
+  }
+  .screen.hidden { display: none; }
+
+  /* ===== START SCREEN ===== */
+  .start-card {
+    background: var(--game-card);
+    border: 3px solid var(--game-border);
+    border-radius: 32px;
+    padding: 40px 36px 36px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 8px 8px 0 var(--game-border), 0 0 0 6px rgba(196,168,130,0.15);
+    position: relative;
+  }
+  .start-card::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 34px;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent, transparent 4px,
+      rgba(196,168,130,0.12) 4px, rgba(196,168,130,0.12) 8px
+    );
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .knit-patch {
+    display: inline-block;
+    font-size: 72px;
+    margin-bottom: 8px;
+    filter: drop-shadow(2px 3px 4px rgba(100,60,30,0.2));
+  }
+
+  .game-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--game-primary);
+    line-height: 1.2;
+    margin-bottom: 6px;
+    text-shadow: 2px 2px 0 rgba(192,101,74,0.15);
+  }
+  .game-subtitle {
+    font-size: 1.05rem;
+    color: var(--game-muted);
+    margin-bottom: 22px;
+    font-weight: 600;
+  }
+
+  .knit-divider {
+    height: 8px;
+    margin: 18px 0;
+    border-radius: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--game-yarn1) 0, var(--game-yarn1) 20px,
+      var(--game-yarn4) 20px, var(--game-yarn4) 40px,
+      var(--game-yarn2) 40px, var(--game-yarn2) 60px,
+      var(--game-yarn3) 60px, var(--game-yarn3) 80px,
+      var(--game-yarn5) 80px, var(--game-yarn5) 100px
+    );
+    opacity: 0.7;
+  }
+
+  .start-desc {
+    font-size: 0.97rem;
+    color: var(--game-text);
+    margin-bottom: 28px;
+    line-height: 1.6;
+    background: rgba(196,168,130,0.13);
+    border-radius: 16px;
+    padding: 14px 18px;
+    border: 1.5px dashed var(--game-border);
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    display: inline-block;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    border-radius: 50px;
+    padding: 14px 36px;
+    transition: transform 0.13s, box-shadow 0.13s;
+    text-decoration: none;
+    position: relative;
+  }
+  .btn:active { transform: translateY(2px) scale(0.98); }
+
+  .btn-primary {
+    background: var(--game-primary);
+    color: #fff;
+    box-shadow: 0 5px 0 #8b3d28, 0 8px 20px rgba(192,101,74,0.3);
+    border: 2.5px solid #8b3d28;
+  }
+  .btn-primary:hover {
+    background: #d47258;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 0 #8b3d28, 0 12px 24px rgba(192,101,74,0.35);
+  }
+
+  .btn-success {
+    background: var(--game-success);
+    color: #fff;
+    box-shadow: 0 4px 0 #4a7a3d, 0 6px 14px rgba(106,158,91,0.3);
+    border: 2.5px solid #4a7a3d;
+    font-size: 1rem;
+    padding: 12px 28px;
+  }
+  .btn-success:hover { background: #78b269; transform: translateY(-2px); }
+
+  .btn-warn {
+    background: var(--game-yarn4);
+    color: var(--game-text);
+    box-shadow: 0 4px 0 #b89530, 0 6px 14px rgba(230,201,126,0.3);
+    border: 2.5px solid #b89530;
+    font-size: 1rem;
+    padding: 12px 28px;
+  }
+  .btn-warn:hover { background: #f0d88a; transform: translateY(-2px); }
+
+  /* ===== GAME SCREEN ===== */
+  .game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .progress-label {
+    background: var(--game-card);
+    border: 2px solid var(--game-border);
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--game-primary);
+    box-shadow: 3px 3px 0 var(--game-border);
+    white-space: nowrap;
+  }
+
+  .progress-balls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ball {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--game-border);
+    background: var(--game-card);
+    transition: all 0.3s;
+  }
+  .ball.done {
+    background: var(--game-success);
+    border-color: #4a7a3d;
+    transform: scale(1.15);
+  }
+
+  /* ===== FLASHCARD ===== */
+  .card-viewport {
+    width: 100%;
+    max-width: 420px;
+    perspective: 1200px;
+  }
+
+  .card-scene {
+    width: 100%;
+    min-height: 300px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+    cursor: pointer;
+    user-select: none;
+  }
+  .card-scene.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 28px;
+    border: 3px solid var(--game-border);
+    background: var(--game-card);
+    box-shadow: 6px 6px 0 var(--game-border), 0 10px 30px var(--game-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 24px;
+    text-align: center;
+    min-height: 300px;
+  }
+
+  .card-face.back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, #fff8f0 0%, #fef3e8 100%);
+  }
+
+  /* Knit stitch texture on card */
+  .card-face::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 22px;
+    border: 2px dashed rgba(196,168,130,0.35);
+    pointer-events: none;
+  }
+
+  /* Yarn ball corner decoration */
+  .card-face::before {
+    content: '';
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 3px solid var(--game-border);
+    background: var(--game-accent);
+    opacity: 0.4;
+  }
+
+  .card-icon {
+    font-size: 80px;
+    margin-bottom: 12px;
+    filter: drop-shadow(2px 3px 6px rgba(100,60,30,0.2));
+    line-height: 1;
+  }
+
+  .card-hint {
+    font-size: 0.85rem;
+    color: var(--game-muted);
+    margin-top: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .card-zone-name {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--game-primary);
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+  .card-zone-desc {
+    font-size: 1rem;
+    color: var(--game-text);
+    line-height: 1.6;
+    font-weight: 600;
+  }
+  .card-zone-fact {
+    font-size: 0.88rem;
+    color: var(--game-muted);
+    margin-top: 10px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* ===== ACTION BUTTONS ===== */
+  .card-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .card-actions.hidden { display: none; }
+
+  /* ===== WIZARD CHARACTER ===== */
+  .wizard-bubble {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    max-width: 420px;
+    width: 100%;
+    margin-top: 20px;
+    animation: fadeIn 0.4s ease;
+  }
+  .wizard-avatar {
+    font-size: 52px;
+    flex-shrink: 0;
+    filter: drop-shadow(2px 3px 5px rgba(100,60,30,0.25));
+    animation: wizardBob 2.5s ease-in-out infinite;
+  }
+  @keyframes wizardBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .wizard-text {
+    background: var(--game-card);
+    border: 2.5px solid var(--game-border);
+    border-radius: 20px 20px 20px 4px;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--game-text);
+    box-shadow: 4px 4px 0 var(--game-border);
+    line-height: 1.5;
+    position: relative;
+    flex: 1;
+  }
+  .wizard-text::before {
+    content: '';
+    position: absolute;
+    left: -11px; bottom: 10px;
+    border: 6px solid transparent;
+    border-right-color: var(--game-border);
+  }
+  .wizard-text::after {
+    content: '';
+    position: absolute;
+    left: -7px; bottom: 11px;
+    border: 5px solid transparent;
+    border-right-color: var(--game-card);
+  }
+
+  /* ===== FINAL SCREEN ===== */
+  .final-card {
+    background: var(--game-card);
+    border: 3px solid var(--game-border);
+    border-radius: 32px;
+    padding: 44px 36px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 8px 8px 0 var(--game-border);
+  }
+  .final-emoji { font-size: 88px; margin-bottom: 10px; display: block; }
+  .final-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--game-success);
+    margin-bottom: 10px;
+  }
+  .final-msg {
+    font-size: 1.05rem;
+    color: var(--game-text);
+    line-height: 1.6;
+    margin-bottom: 28px;
+    background: rgba(196,168,130,0.13);
+    padding: 14px 18px;
+    border-radius: 16px;
+    border: 1.5px dashed var(--game-border);
+  }
+
+  /* ===== DECORATIVE YARN BALLS ===== */
+  .deco {
+    position: fixed;
+    border-radius: 50%;
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .deco-1 {
+    width: 140px; height: 140px;
+    background: var(--game-yarn1);
+    top: -40px; right: -20px;
+  }
+  .deco-2 {
+    width: 100px; height: 100px;
+    background: var(--game-yarn2);
+    bottom: 80px; left: -30px;
+  }
+  .deco-3 {
+    width: 70px; height: 70px;
+    background: var(--game-yarn5);
+    top: 40%; right: 5%;
+  }
+
+  /* ===== KNIT PATTERN CARDS ===== */
+  .stitch-row {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin: 8px 0;
+  }
+  .stitch {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    0% { transform: scale(0.7); opacity: 0; }
+    70% { transform: scale(1.06); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .pop-in { animation: popIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+  @keyframes cardRemove {
+    to { transform: translateX(120%) rotate(15deg); opacity: 0; }
+  }
+  .card-removing { animation: cardRemove 0.4s ease-in forwards; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 480px) {
+    .game-title { font-size: 1.55rem; }
+    .card-icon { font-size: 60px; }
+    .card-zone-name { font-size: 1.25rem; }
+    .card-face { padding: 22px 16px; min-height: 260px; }
+    .btn { padding: 13px 24px; font-size: 1rem; }
+    .wizard-avatar { font-size: 40px; }
+    .start-card, .final-card { padding: 28px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="yarn-top"></div>
+<div class="yarn-bottom"></div>
+<div class="deco deco-1"></div>
+<div class="deco deco-2"></div>
+<div class="deco deco-3"></div>
+
+<!-- ===== START SCREEN ===== -->
+<div class="screen" id="screen-start">
+  <div class="start-card pop-in">
+    <div class="knit-patch">🧶</div>
+    <h1 class="game-title">Природные зоны России</h1>
+    <p class="game-subtitle">Окружающий мир · 4 класс</p>
+    <div class="knit-divider"></div>
+    <div class="start-desc">
+      🌿 Перед тобой 8 флэш-карточек о природных зонах нашей страны.<br><br>
+      Нажми на карточку — узнай, что на обороте!<br>
+      <strong>«Знаю»</strong> — карточка уйдёт, <strong>«Повторить»</strong> — вернётся позже.
+    </div>
+    <button class="btn btn-primary" onclick="startGame()">🧵 Начать!</button>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div class="screen hidden" id="screen-game">
+  <div class="game-header">
+    <div class="progress-label" id="progress-label">Карточка 1 из 8</div>
+    <div class="progress-balls" id="progress-balls"></div>
+  </div>
+
+  <div class="card-viewport">
+    <div class="card-scene" id="flashcard" onclick="flipCard()">
+      <div class="card-face front" id="card-front">
+        <!-- filled by JS -->
+      </div>
+      <div class="card-face back" id="card-back">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <div class="card-actions hidden" id="card-actions">
+    <button class="btn btn-success" onclick="knowCard()">✅ Знаю!</button>
+    <button class="btn btn-warn" onclick="repeatCard()">🔄 Повторить</button>
+  </div>
+
+  <div class="wizard-bubble" id="wizard-bubble">
+    <div class="wizard-avatar">🧙</div>
+    <div class="wizard-text" id="wizard-text">Нажми на карточку, чтобы узнать, что на обороте!</div>
+  </div>
+</div>
+
+<!-- ===== FINAL SCREEN ===== -->
+<div class="screen hidden" id="screen-final">
+  <div class="final-card pop-in">
+    <span class="final-emoji">🎉</span>
+    <h2 class="final-title">Молодец!</h2>
+    <div class="knit-divider"></div>
+    <div class="final-msg" id="final-msg"></div>
+    <div class="wizard-bubble" style="margin-bottom:24px">
+      <div class="wizard-avatar">🧙</div>
+      <div class="wizard-text" id="wizard-final-text"></div>
+    </div>
+    <button class="btn btn-primary" onclick="restartGame()">🧶 Пройти ещё раз</button>
+  </div>
+</div>
+
+<script>
+// ========== DATA ==========
+const allCards = [
+  {
+    icon: "🏔️❄️",
+    iconBg: "#b8d4e8",
+    zoneName: "Арктика",
+    desc: "Ледяная зона: вечный лёд и снег. Солнце светит, но почти не греет. Лето очень короткое.",
+    fact: "🐻‍❄️ Здесь живут белые медведи, тюлени и моржи.",
+    color: "#7ba7bc"
+  },
+  {
+    icon: "🌿🌲",
+    iconBg: "#c3dfc3",
+    zoneName: "Тундра",
+    desc: "Безлесная зона с вечной мерзлотой. Лето короткое, зима долгая и суровая.",
+    fact: "🦌 Северные олени, лемминги и полярные совы живут здесь.",
+    color: "#a8c5a0"
+  },
+  {
+    icon: "🌲🌲",
+    iconBg: "#b8d4b8",
+    zoneName: "Тайга",
+    desc: "Самая большая природная зона России. Густые хвойные леса из елей, сосен и лиственниц.",
+    fact: "🐻 Бурые медведи, рыси и соболи — жители тайги.",
+    color: "#6a9e5b"
+  },
+  {
+    icon: "🍂🌳",
+    iconBg: "#e8d8b8",
+    zoneName: "Смешанные и лиственные леса",
+    desc: "Здесь растут и хвойные, и лиственные деревья: дубы, берёзы, клёны, ели.",
+    fact: "🦔 Ёжи, лоси, белки и дятлы — обитатели этих лесов.",
+    color: "#c4a85a"
+  },
+  {
+    icon: "🌾🌸",
+    iconBg: "#f0e8c0",
+    zoneName: "Степь",
+    desc: "Бескрайние травяные равнины без деревьев. Почвы очень плодородные — чернозём.",
+    fact: "🦅 Орлы, суслики и дикие лошади — типичные жители степей.",
+    color: "#d4a84a"
+  },
+  {
+    icon: "🏜️☀️",
+    iconBg: "#f0d8b0",
+    zoneName: "Полупустыня и пустыня",
+    desc: "Очень мало дождей. Днём жара, ночью холодно. Растения приспособлены беречь воду.",
+    fact: "🦎 Ящерицы, тушканчики и верблюды — хозяева пустынь.",
+    color: "#d4874a"
+  },
+  {
+    icon: "🌊🐟",
+    iconBg: "#c0d8f0",
+    zoneName: "Реки и озёра",
+    desc: "Пресные водоёмы России богаты рыбой. Волга — самая длинная река Европы. Байкал — самое глубокое озеро мира.",
+    fact: "🦦 Выдры, бобры и цапли — обитатели водоёмов.",
+    color: "#5a90b0"
+  },
+  {
+    icon: "🌋⛰️",
+    iconBg: "#d8c8d8",
+    zoneName: "Горы",
+    desc: "Чем выше в горы — тем холоднее. Разные высоты — разные растения и животные.",
+    fact: "🦅 Горные орлы, горные козлы и снежные барсы живут в горах.",
+    color: "#8a7090"
+  }
+];
+
+// ========== WIZARD PHRASES ==========
+const wizardPhrases = {
+  greeting: [
+    "Нажми на карточку, чтобы узнать, что на обороте!",
+    "Изучай и запоминай — ты справишься!",
+    "Готов? Кликай на карточку! ✨"
+  ],
+  flip: [
+    "Вот это да! Читай внимательно! 📖",
+    "Запомни хорошенько, это важно! 🌟",
+    "Отличная природная зона! Всё понял? 🧐",
+    "Теперь решай: знаешь или повторим? 🤔"
+  ],
+  know: [
+    "Замечательно! Ты настоящий знаток! 🌟",
+    "Вот это память! Молодчина! ✨",
+    "Отлично! Двигаемся дальше! 🚀",
+    "Умница! Так держать! 🎉"
+  ],
+  repeat: [
+    "Повторение — мать учения! Всё получится! 💪",
+    "Вернёмся к этой карточке чуть позже! 🔄",
+    "Не страшно! Скоро запомнишь точно! 😊",
+    "Молодец, что не сдаёшься! Повторим! 🌈"
+  ],
+  final: [
+    "Ты изучил все природные зоны России! Я горжусь тобой! 🏆",
+    "Какой умный ученик! Природа России от тундры до пустыни — в твоих руках! 🌿",
+    "Блестяще! Теперь ты знаешь, где живут белые медведи и верблюды! ⭐",
+    "Ты настоящий маленький географ! Поздравляю! 🌍"
+  ]
+};
+
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// ========== STATE ==========
+let deck = [];
+let doneCount = 0;
+let totalCount = 0;
+let isFlipped = false;
+
+function startGame() {
+  deck = [...allCards];
+  shuffle(deck);
+  doneCount = 0;
+  totalCount = allCards.length;
+  isFlipped = false;
+
+  document.getElementById('screen-start').classList.add('hidden');
+  document.getElementById('screen-game').classList.remove('hidden');
+  document.getElementById('screen-final').classList.add('hidden');
+
+  buildBalls();
+  showCard();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function buildBalls() {
+  const container = document.getElementById('progress-balls');
+  container.innerHTML = '';
+  for (let i = 0; i < totalCount; i++) {
+    const b = document.createElement('div');
+    b.className = 'ball';
+    b.id = `ball-${i}`;
+    container.appendChild(b);
+  }
+}
+
+function updateProgress() {
+  document.getElementById('progress-label').textContent =
+    `Изучено: ${doneCount} из ${totalCount}`;
+  for (let i = 0; i < doneCount; i++) {
+    const b = document.getElementById(`ball-${i}`);
+    if (b) b.classList.add('done');
+  }
+}
+
+function showCard() {
+  if (deck.length === 0) { showFinal(); return; }
+
+  isFlipped = false;
+  const card = deck[0];
+  const scene = document.getElementById('flashcard');
+  scene.classList.remove('flipped', 'card-removing');
+
+  // Fill front
+  document.getElementById('card-front').innerHTML = `
+    <div class="card-icon" style="background:${card.iconBg};border-radius:50%;padding:16px;line-height:1;">${card.icon}</div>
+    <p class="card-hint">👆 Нажми, чтобы узнать</p>
+  `;
+
+  // Fill back
+  document.getElementById('card-back').innerHTML = `
+    <h3 class="card-zone-name">${card.zoneName}</h3>
+    <p class="card-zone-desc">${card.desc}</p>
+    <p class="card-zone-fact">${card.fact}</p>
+  `;
+
+  document.getElementById('card-actions').classList.add('hidden');
+  setWizard(rnd(wizardPhrases.greeting));
+  updateProgress();
+}
+
+function flipCard() {
+  if (!isFlipped) {
+    isFlipped = true;
+    document.getElementById('flashcard').classList.add('flipped');
+    document.getElementById('card-actions').classList.remove('hidden');
+    setWizard(rnd(wizardPhrases.flip));
+  }
+}
+
+function knowCard() {
+  doneCount++;
+  const scene = document.getElementById('flashcard');
+  scene.classList.add('card-removing');
+  setWizard(rnd(wizardPhrases.know));
+
+  setTimeout(() => {
+    deck.shift();
+    showCard();
+    updateProgress();
+  }, 380);
+}
+
+function repeatCard() {
+  const card = deck.shift();
+  deck.push(card);
+  isFlipped = false;
+  const scene = document.getElementById('flashcard');
+  scene.classList.remove('flipped');
+  document.getElementById('card-actions').classList.add('hidden');
+  setWizard(rnd(wizardPhrases.repeat));
+
+  // Brief hide/show
+  scene.style.opacity = '0';
+  setTimeout(() => {
+    showCard();
+    scene.style.opacity = '1';
+  }, 200);
+}
+
+function setWizard(text) {
+  const el = document.getElementById('wizard-text');
+  el.style.animation = 'none';
+  void el.offsetHeight;
+  el.style.animation = 'fadeIn 0.35s ease';
+  el.textContent = text;
+}
+
+function showFinal() {
+  document.getElementById('screen-game').classList.add('hidden');
+  document.getElementById('screen-final').classList.remove('hidden');
+  document.getElementById('final-msg').textContent =
+    `Ты изучил все ${totalCount} природных зон! Арктика, тундра, тайга, леса, степь, пустыня, реки и горы — теперь ты их знаешь! 🌍`;
+  document.getElementById('wizard-final-text').textContent = rnd(wizardPhrases.final);
+}
+
+function restartGame() {
+  startGame();
+}
+</script>
+
+</body>
+</html>
